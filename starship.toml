@@ -1,0 +1,56 @@
+# Get editor completions based on the config schema
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Move the directory to a new line and add a clean character
+format = """
+[░▒▓](#89b4fa)\
+[ cs ](bg:#89b4fa fg:#1e1e2e)\
+[](fg:#89b4fa bg:#45475a)\
+$directory\
+[](fg:#45475a bg:#a6e3a1)\
+$git_branch\
+$git_status\
+[](fg:#a6e3a1 bg:#f9e2af)\
+$python\
+$rust\
+$golang\
+$nodejs\
+[](fg:#f9e2af bg:#313244)\
+$time\
+[ ](fg:#313244)\
+\n$character"""
+
+[directory]
+style = "bg:#45475a fg:#cdd6f4"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[git_branch]
+symbol = ""
+style = "bg:#a6e3a1 fg:#1e1e2e"
+format = '[ $symbol $branch ]($style)'
+
+[git_status]
+style = "bg:#a6e3a1 fg:#1e1e2e"
+format = '[$all_status$ahead_behind ]($style)'
+
+[python]
+symbol = ""
+style = "bg:#f9e2af fg:#1e1e2e"
+format = '[ $symbol ($version) ]($style)'
+
+[rust]
+symbol = ""
+style = "bg:#f9e2af fg:#1e1e2e"
+format = '[ $symbol ($version) ]($style)'
+
+[time]
+disabled = false
+time_format = "%R" # Hour:Minute Format
+style = "bg:#313244 fg:#cdd6f4"
+format = '[ $time ]($style)'
+
+[character]
+success_symbol = "[󱞩](bold #a6e3a1)"
+error_symbol = "[󱞩](bold #f38ba8)"
