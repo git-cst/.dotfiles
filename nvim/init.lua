@@ -333,7 +333,7 @@ require('lazy').setup({
     -- your replacement picker by requiring it explicitly (e.g. 'custom.plugins.snacks')
 
     -- Note: If you customize your config for yourself,
-    -- it’s best to remove the Telescope plugin config entirely
+    -- it's best to remove the Telescope plugin config entirely
     -- instead of just disabling it here, to keep your config clean.
     enabled = true,
     event = 'VimEnter',
@@ -527,9 +527,22 @@ require('lazy').setup({
           --
           -- In this case, we create a function that lets us more easily define mappings specific
           -- for LSP related items. It sets the mode, buffer and description for us each time.
+          local client = vim.lsp.get_client_by_id(event.data.client_id)
+          if not client then return end
+
           local map = function(keys, func, desc, mode)
             mode = mode or 'n'
             vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
+          end
+
+          -- Enable semantic token highlighting for all servers that support it
+          if client.server_capabilities.semanticTokensProvider then
+            vim.lsp.semantic_tokens.start(event.buf, client.id)
+          end
+
+          -- Ruff: disable hover so basedpyright handles it instead
+          if client.name == 'ruff' then
+            client.server_capabilities.hoverProvider = false
           end
 
           -- Rename the variable under your cursor.
@@ -549,8 +562,7 @@ require('lazy').setup({
           --    See `:help CursorHold` for information about when this is executed
           --
           -- When you move your cursor, the highlights will be cleared (the second autocommand).
-          local client = vim.lsp.get_client_by_id(event.data.client_id)
-          if client and client:supports_method('textDocument/documentHighlight', event.buf) then
+          if client:supports_method('textDocument/documentHighlight', event.buf) then
             local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
               buffer = event.buf,
@@ -577,29 +589,23 @@ require('lazy').setup({
           -- code, if the language server you are using supports them
           --
           -- This may be unwanted, since they displace some of your code
-          if client and client:supports_method('textDocument/inlayHint', event.buf) then
-            map('<leader>th', function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf }) end, '[T]oggle Inlay [H]ints')
+          if client:supports_method('textDocument/inlayHint', event.buf) then
+            map('<leader>th', function()
+              vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
+            end, '[T]oggle Inlay [H]ints')
           end
         end,
       })
+
+      -- Custom highlight overrides and semantic token modifier fix.
+      -- See lua/custom/highlights.lua for details.
+      require('custom.highlights').setup()
 
       -- LSP servers and clients are able to communicate to each other what features they support.
       --  By default, Neovim doesn't support everything that is in the LSP specification.
       --  When you add blink.cmp, luasnip, etc. Neovim now has *more* capabilities.
       --  So, we create new capabilities with blink.cmp, and then broadcast that to the servers.
       local capabilities = require('blink.cmp').get_lsp_capabilities()
-
-      local on_attach = function(client, bufnr)
-        -- This enables the variable highlighting for EVERY server
-        if client.server_capabilities.semanticTokensProvider then
-          vim.lsp.semantic_tokens.start(bufnr, client.id)
-        end
-
-        -- Keep your specific Ruff logic: If the client IS ruff, disable hover
-        if client.name == 'ruff' then
-          client.server_capabilities.hoverProvider = false
-        end
-      end
 
       -- Enable the following language servers
       --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
@@ -654,16 +660,16 @@ require('lazy').setup({
         -- Lua
         'lua-language-server', -- Lua Language server
         'stylua', -- Used to format Lua code
-        
+
         -- Python
         'basedpyright',
         'ruff',
-        
+
         -- Golang
         'gopls',
         'golangci-lint',
         'delve',
-        
+
         -- You can add other tools here that you want Mason to install
       })
 
@@ -671,19 +677,6 @@ require('lazy').setup({
 
       for name, server in pairs(servers) do
         server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-
-        server.on_attach = function(client, bufnr)
-          -- Enable Semantic Tokens for all
-          if client.server_capabilities.semanticTokensProvider then
-            vim.lsp.semantic_tokens.start(bufnr, client.id)
-          end
-
-          -- Special case for Ruff: disable hover so it doesn't clash with Pyright
-          if client.name == 'ruff' then
-            client.server_capabilities.hoverProvider = false
-          end
-        end
-
         vim.lsp.config(name, server)
         vim.lsp.enable(name)
       end
@@ -849,25 +842,37 @@ require('lazy').setup({
     },
   },
 
-  { -- You can easily change to a different colorscheme.
-    -- Change the name of the colorscheme plugin below, and then
-    -- change the command in the config to whatever the name of that colorscheme is.
-    --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
+  { -- Colorscheme
+    'catppuccin/nvim',
+    name = 'catppuccin',
+    priority = 1000,
     config = function()
-      ---@diagnostic disable-next-line: missing-fields
-      require('tokyonight').setup {
+      require('catppuccin').setup {
+        flavour = 'mocha', -- latte, frappe, macchiato, mocha
         styles = {
-          comments = { italic = false }, -- Disable italics in comments
+          comments = { 'italic' },
+        },
+        integrations = {
+          blink_cmp = true,
+          gitsigns = true,
+          mason = true,
+          semantic_tokens = true,
+          telescope = true,
+          treesitter = true,
+          which_key = true,
+          mini = { enabled = true },
+          native_lsp = {
+            enabled = true,
+            underlines = {
+              errors = { 'undercurl' },
+              hints = { 'undercurl' },
+              warnings = { 'undercurl' },
+              information = { 'undercurl' },
+            },
+          },
         },
       }
-
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'catppuccin'
     end,
   },
 
@@ -970,7 +975,7 @@ require('lazy').setup({
   --
   -- require 'kickstart.plugins.debug',
   -- require 'kickstart.plugins.indent_line',
-  -- require 'kickstart.plugins.lint',
+  require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
   -- require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
@@ -979,7 +984,7 @@ require('lazy').setup({
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- { import = 'custom.plugins' },
+  { import = 'kickstart.plugins.neo-tree' },
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
