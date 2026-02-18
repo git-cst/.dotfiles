@@ -42,12 +42,14 @@ local function apply_custom_highlights()
     -- Variables
     -----------------------------------------------------------------
     -- Base variable highlight - gives variables a distinct color
-    -- from plain text so they stand out in assignments and expressions
-    ['@lsp.type.variable'] = { fg = palette.text },
+    -- from plain text. This is especially important for Python where
+    -- basedpyright sends most variables as bare @lsp.type.variable
+    -- with no modifiers (unlike gopls which adds type/semantic modifiers)
+    ['@lsp.type.variable'] = { fg = palette.flamingo },
 
     -- Variable definitions (declarations like `x := ...` or `x = ...`)
-    -- Slightly different shade to distinguish declaration from usage
-    ['@lsp.typemod.variable.definition'] = { fg = palette.flamingo },
+    -- Slightly warmer shade to distinguish declaration from usage
+    ['@lsp.typemod.variable.definition'] = { fg = palette.rosewater },
 
     -- Readonly/constant variables (e.g. `const maxRetries = 3`)
     ['@lsp.typemod.variable.readonly'] = { fg = palette.peach, italic = true },
