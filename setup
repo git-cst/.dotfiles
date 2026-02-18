@@ -1,0 +1,25 @@
+#! /usr/bin/env bash
+
+if [ ! -L ~/.config/nvim ]; then
+	ln -s ~/.dotfiles/nvim ~/.config/nvim
+fi
+
+if [ ! -d ~/.config/alacritty ]; then
+    mkdir -p ~/.config/alacritty
+fi
+
+if [ ! -L ~/.config/alacritty/alacritty.toml ]; then
+	ln -s ~/.dotfiles/alacritty.toml ~/.config/alacritty/alacritty.toml
+fi
+
+if [ ! -L ~/.config/starship.toml ]; then
+	ln -s ~/.dotfiles/starship.toml ~/.config/starship.toml
+fi
+
+if [ ! -d ~/.config/tmux ]; then
+	mkdir ~/.config/tmux
+fi
+
+if [ ! -L ~/.config/tmux/tmux.conf ]; then
+	ln -s ~/.dotfiles/tmux.conf ~/.config/tmux/tmux.conf
+fi
