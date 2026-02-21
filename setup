@@ -1,25 +1,39 @@
 #! /usr/bin/env bash
 
+# Neovim
 if [ ! -L ~/.config/nvim ]; then
-	ln -s ~/.dotfiles/nvim ~/.config/nvim
+    echo "Setting up nvim symlinks..."
+    ln -s ~/.dotfiles/nvim ~/.config/nvim
 fi
 
+# Alacritty
 if [ ! -d ~/.config/alacritty ]; then
     mkdir -p ~/.config/alacritty
 fi
 
 if [ ! -L ~/.config/alacritty/alacritty.toml ]; then
-	ln -s ~/.dotfiles/alacritty.toml ~/.config/alacritty/alacritty.toml
+    echo "Setting up alacritty symlinks..."
+    ln -s ~/.dotfiles/alacritty.toml ~/.config/alacritty/alacritty.toml
 fi
 
+# Starship
 if [ ! -L ~/.config/starship.toml ]; then
-	ln -s ~/.dotfiles/starship.toml ~/.config/starship.toml
+    echo "Setting up starship symlinks..."
+    ln -s ~/.dotfiles/starship.toml ~/.config/starship.toml
 fi
 
+# Tmux
 if [ ! -d ~/.config/tmux ]; then
-	mkdir ~/.config/tmux
+    mkdir -p ~/.config/tmux
 fi
 
 if [ ! -L ~/.config/tmux/tmux.conf ]; then
-	ln -s ~/.dotfiles/tmux.conf ~/.config/tmux/tmux.conf
+    echo "Setting up tmux symlinks..."
+    ln -s ~/.dotfiles/tmux.conf ~/.config/tmux/tmux.conf
+fi
+
+# Install Tmux Plugin Manager (tpm) if not present
+if [ ! -d ~/.tmux/plugins/tpm ]; then
+    echo "Installing Tmux Plugin Manager..."
+    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 fi
