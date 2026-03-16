@@ -35,13 +35,18 @@ format = '[ $symbol $branch ]($style)'
 style = "bg:#a6e3a1 fg:#1e1e2e"
 format = '[$all_status$ahead_behind ]($style)'
 
+[golang]
+symbol = "󰟓 "
+style = "bg:#f9e2af fg:#1e1e2e"
+format = '[ $symbol ($version) ]($style)'
+
 [python]
-symbol = ""
+symbol = " "
 style = "bg:#f9e2af fg:#1e1e2e"
 format = '[ $symbol ($version) ]($style)'
 
 [rust]
-symbol = ""
+symbol = " "
 style = "bg:#f9e2af fg:#1e1e2e"
 format = '[ $symbol ($version) ]($style)'
 
