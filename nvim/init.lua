@@ -702,6 +702,7 @@ require("lazy").setup({
 
 				-- html
 				html = {},
+				htmx = {},
 
 				-- javascript
 				ts_ls = {},
@@ -734,6 +735,7 @@ require("lazy").setup({
 
 				-- HTML / JavaScript / TypeScript
 				"html-lsp",
+				"htmx-lsp",
 				"typescript-language-server",
 				"prettierd",
 				"prettier",
@@ -783,8 +785,8 @@ require("lazy").setup({
 
 	{ -- autoformat
 		"stevearc/conform.nvim",
-		event = { "bufwritepre" },
-		cmd = { "conforminfo" },
+		event = { "BufWritePre" },
+		cmd = { "ConformInfo" },
 		keys = {
 			{
 				"<leader>f",
